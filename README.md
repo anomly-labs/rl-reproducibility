@@ -9,7 +9,7 @@
 
 ```text
         ╔══════════════════════════════════════════════════════════════════════╗
-        ║   the SAME reward · the SAME weights · a different (valid) sum order  ║
+        ║  the SAME reward · the SAME weights · a different (valid) sum order  ║
         ╚══════════════════════════════════════════════════════════════════════╝
 
              reward(answer)  =   Σ  wᵢ · aᵢ        ← re-order the sum, and:
@@ -27,11 +27,12 @@
 GPT-2 weights, on your laptop, in seconds. An order-independent reduction removes it, bit-for-bit.**
 
 ```mermaid
+%%{init: {'flowchart': {'rankSpacing': 95, 'nodeSpacing': 55, 'curve': 'basis'}}}%%
 flowchart LR
-    X["same weights<br/>+ inputs"] --> O{"reduction<br/>order"}
-    O -->|"float · order A"| A["reward → PASS ✅"]
-    O -->|"float · order B"| B["reward → FAIL ❌"]
-    O ==>|"exact quire ·<br/>any order"| C["reward → identical ✅<br/>every time"]
+    X["same weights + inputs"] --> O{"reduction order"}
+    O -->|"float, order A"| A["reward → PASS ✅"]
+    O -->|"float, order B"| B["reward → FAIL ❌"]
+    O ==>|"exact quire, any order"| C["reward → identical, every run ✅"]
     style B fill:#3a1414,stroke:#e2554e,color:#ffffff
     style C fill:#12331c,stroke:#3fb56a,color:#ffffff
     style O fill:#1b1b2b,stroke:#8a8ac0,color:#ffffff

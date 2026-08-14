@@ -28,8 +28,12 @@ Runs in a few seconds on real GPT-2 embeddings (shipped as fixtures — no downl
 [2] TRAINING-INFERENCE MISMATCH — do sampler & trainer disagree from float order?
   FLOAT  -> logits differing: 7492/8192   KL(sampler||trainer): mean 3.17e-02 max 4.97e-02
   EXACT  -> logits bit-identical under any order: 8192/8192   KL(orderA||orderB): 0.0 exactly
+
+[3] RL LOOP FORK — does the same training run diverge just from sampler kernel shape?
+  FLOAT  -> action streams identical across chunk: False   final weight max |delta|: 9.33e-03
+  EXACT  -> action streams identical across chunk: True   final weights bit-equal: True
 ```
-*(Your numbers will match — the inputs are fixed and disclosed.)*
+*(Your numbers will match — the inputs are fixed and disclosed. Whole suite runs in ~3s.)*
 
 - **Verifier determinism** (`verifier_determinism.py`) — a reward-model score is a dot product compared
   to a threshold. Compute it in different bf16 reduction orders (the shapes that differ between serving
@@ -38,6 +42,12 @@ Runs in a few seconds on real GPT-2 embeddings (shipped as fixtures — no downl
 - **Training–inference mismatch** (`tim.py`) — the trainer (sequential) and sampler (chunked-tree)
   accumulate the *same* GPT-2 logits in different orders and assign **different probabilities to the same
   tokens** (KL > 0). The order-independent reduction is bit-identical, KL = 0.
+- **RL loop fork** (`grpo.py`) — a real GRPO loop (verifiable nearest-neighbour reward, reward learns
+  0→0.48) run twice with identical seeds and data, changing **only** the sampler's split-K chunk shape.
+  Under float the two runs **fork** — different sampled action streams, different trained weights — so
+  you can't reproduce the run. Under the order-independent reduction they're **bit-identical** end to end.
+  (Honest scope: at this scale it's a training-*reproducibility* failure; the behavioral pass/fail
+  consequence is demo [1].)
 
 ## What's real, and what's honest scope
 
@@ -60,9 +70,10 @@ exactness of transcendentals.
 
 | file | what |
 |---|---|
-| `demo.py` | runs both demonstrations, one consolidated verdict |
+| `demo.py` | runs all three demonstrations, one consolidated verdict |
 | `verifier_determinism.py` | reward-verifier flip demo |
 | `tim.py` | training–inference mismatch demo |
+| `grpo.py` | RL-loop-fork demo (training run diverges under float) |
 | `refquire.py` | order-independent exact reference reduction (+ big-int gold check) |
 | `floatkernels.py` | the order-dependent bf16 serving/training kernels |
 | `regenerate_fixtures.py` | rebuild the real GPT-2 fixtures from the public checkpoint |

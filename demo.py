@@ -28,6 +28,7 @@ import numpy as np
 
 import tim
 import verifier_determinism as vd
+import grpo
 
 HERE = Path(__file__).resolve().parent
 
@@ -53,13 +54,16 @@ def main() -> int:
     print("\n[2] TRAINING-INFERENCE MISMATCH — do sampler & trainer disagree from float order?")
     ok2 = tim.report(tim.run(wte, wpe))
 
+    print("\n[3] RL LOOP FORK — does the same training run diverge just from sampler kernel shape?")
+    ok3 = grpo.report(grpo.run(wte, wpe))
+
     dt = time.perf_counter() - t0
     print("\n" + bar)
-    ok = ok1 and ok2
+    ok = ok1 and ok2 and ok3
     if ok:
-        print("RESULT: on real GPT-2 data, float accumulation ORDER alone changes reward verdicts and")
-        print("        sampler/trainer probabilities. An order-independent reduction removes both,")
-        print("        bit-for-bit. Anomly puts that reduction in silicon at GPU-parity speed.")
+        print("RESULT: on real GPT-2 data, float accumulation ORDER alone changes reward verdicts,")
+        print("        sampler/trainer probabilities, AND whole training runs. An order-independent")
+        print("        reduction removes all three, bit-for-bit. Anomly puts it in silicon at speed.")
     else:
         print("RESULT: a property did not hold — investigate before using this externally.")
     print(f"[{dt:.1f}s]   Contact: https://www.anomly.com/contact")

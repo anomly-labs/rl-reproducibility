@@ -39,6 +39,21 @@ def exact_logits(W, h) -> np.ndarray:
     return exact_scores(W, h)
 
 
+def exact_matmul(A, B) -> np.ndarray:
+    """Order-independent matmul A(P,K) @ B(K,N) -> (P,N): each output is an order-free reduction of K
+    products, so the result does not depend on tile/chunk shape. Used by the GRPO demo's exact path."""
+    A = np.asarray(A, np.float64)
+    B = np.asarray(B, np.float64)
+    P, K = A.shape
+    N = B.shape[1]
+    out = np.empty((P, N), dtype=np.float64)
+    for i in range(P):
+        Ai = A[i]
+        for j in range(N):
+            out[i, j] = math.fsum((Ai * B[:, j]).tolist())
+    return out
+
+
 def exact_int_dot(a, b, frac_bits: int = 200) -> float:
     """Fully-exact gold reference: exact products AND exact sum in arbitrary-precision integers,
     rounded once at readout. Order-independent by construction. Slow — for verification, not the loop."""

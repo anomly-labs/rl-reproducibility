@@ -29,8 +29,8 @@ GPT-2 weights, on your laptop, in seconds. An order-independent reduction remove
 ```mermaid
 flowchart LR
     X["same weights<br/>+ inputs"] --> O{"reduction<br/>order"}
-    O -->|"float · order A"| A["reward&nbsp;→&nbsp;PASS ✅"]
-    O -->|"float · order B"| B["reward&nbsp;→&nbsp;FAIL ❌"]
+    O -->|"float · order A"| A["reward → PASS ✅"]
+    O -->|"float · order B"| B["reward → FAIL ❌"]
     O ==>|"exact quire ·<br/>any order"| C["reward → identical ✅<br/>every time"]
     style B fill:#3a1414,stroke:#e2554e,color:#ffffff
     style C fill:#12331c,stroke:#3fb56a,color:#ffffff

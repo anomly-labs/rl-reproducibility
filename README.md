@@ -12,27 +12,27 @@
         ║  the SAME reward · the SAME weights · a different (valid) sum order  ║
         ╚══════════════════════════════════════════════════════════════════════╝
 
-             reward(answer)  =   Σ  wᵢ · aᵢ        ← re-order the sum, and:
+             reward(answer)  =   Σ  wᵢ · aᵢ         re-order the sum (same math):
                                   i
 
-               float engine  →   0.50003  PASS        0.49998  FAIL     ← 17.6% of
-                                                                          the boundary
-               exact  quire  →   0.50000  PASS        0.50000  PASS     ← 0 flips, ever
-                                 └──────────── bit-identical, every run ─────────┘
+               float engine   →   0.50003 PASS      0.49998 FAIL      ← two verdicts
+               exact  quire   →   0.50000 PASS      0.50000 PASS      ← one, always
 
-           float's verdict depends on the accumulation ORDER.  exact's never does.
+           Same answer, same weights. FLOAT's pass/fail depends on the accumulation
+           ORDER, near the threshold — the only place a verdict is ever in doubt.
+           The exact quire's never does: bit-identical, every run, zero flips.
 ```
 
 **Float accumulation *order* alone changes reward verdicts and sampler/trainer probabilities — on real
 GPT-2 weights, on your laptop, in seconds. An order-independent reduction removes it, bit-for-bit.**
 
 ```mermaid
-%%{init: {'flowchart': {'rankSpacing': 95, 'nodeSpacing': 55, 'curve': 'basis'}}}%%
 flowchart LR
-    X["same weights + inputs"] --> O{"reduction order"}
-    O -->|"float, order A"| A["reward → PASS ✅"]
-    O -->|"float, order B"| B["reward → FAIL ❌"]
-    O ==>|"exact quire, any order"| C["reward → identical, every run ✅"]
+    X["same weights<br/>+ inputs"] --> O{"reduction<br/>order"}
+    O --> A["float · order A<br/>reward → PASS ✅"]
+    O --> B["float · order B<br/>reward → FAIL ❌"]
+    O --> C["exact quire · any order<br/>reward → identical ✅"]
+    style A fill:#2b2a17,stroke:#c9c15a,color:#ffffff
     style B fill:#3a1414,stroke:#e2554e,color:#ffffff
     style C fill:#12331c,stroke:#3fb56a,color:#ffffff
     style O fill:#1b1b2b,stroke:#8a8ac0,color:#ffffff

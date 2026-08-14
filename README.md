@@ -1,8 +1,41 @@
 <!-- Copyright (c) 2026 Anomly, Inc. Author: Ry Bruscoe. Licensed under the Apache License, Version 2.0. -->
 # RL / verifier reproducibility demo
 
+[![CI](https://github.com/anomly-labs/rl-reproducibility/actions/workflows/ci.yml/badge.svg)](https://github.com/anomly-labs/rl-reproducibility/actions/workflows/ci.yml)
+![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)
+![Python](https://img.shields.io/badge/python-3.10%20–%203.13-blue.svg)
+![deps](https://img.shields.io/badge/deps-numpy%20only-brightgreen.svg)
+![runtime](https://img.shields.io/badge/runs%20in-~3s-brightgreen.svg)
+
+```text
+        ╔══════════════════════════════════════════════════════════════════════╗
+        ║   the SAME reward · the SAME weights · a different (valid) sum order  ║
+        ╚══════════════════════════════════════════════════════════════════════╝
+
+             reward(answer)  =   Σ  wᵢ · aᵢ        ← re-order the sum, and:
+                                  i
+
+               float engine  →   0.50003  PASS        0.49998  FAIL     ← 17.6% of
+                                                                          the boundary
+               exact  quire  →   0.50000  PASS        0.50000  PASS     ← 0 flips, ever
+                                 └──────────── bit-identical, every run ─────────┘
+
+           float's verdict depends on the accumulation ORDER.  exact's never does.
+```
+
 **Float accumulation *order* alone changes reward verdicts and sampler/trainer probabilities — on real
 GPT-2 weights, on your laptop, in seconds. An order-independent reduction removes it, bit-for-bit.**
+
+```mermaid
+flowchart LR
+    X["same weights<br/>+ inputs"] --> O{"reduction<br/>order"}
+    O -->|"float · order A"| A["reward&nbsp;→&nbsp;PASS ✅"]
+    O -->|"float · order B"| B["reward&nbsp;→&nbsp;FAIL ❌"]
+    O ==>|"exact quire ·<br/>any order"| C["reward → identical ✅<br/>every time"]
+    style B fill:#3a1414,stroke:#e2554e,color:#ffffff
+    style C fill:#12331c,stroke:#3fb56a,color:#ffffff
+    style O fill:#1b1b2b,stroke:#8a8ac0,color:#ffffff
+```
 
 This is the problem behind the *training–inference mismatch* and *verifier nondeterminism* that RL
 post-training teams are patching in software today. It's a property of the arithmetic, not the model.

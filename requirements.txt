@@ -1,0 +1,4 @@
+numpy>=1.23
+# to rebuild the fixtures only (not needed to run the demo):
+#   torch>=2.0
+#   transformers>=4.30

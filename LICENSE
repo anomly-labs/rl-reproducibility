@@ -1,0 +1,19 @@
+Anomly Demonstration License
+
+Copyright (c) 2026 Anomly, Inc. All rights reserved. Author: Ry Bruscoe.
+
+Permission is granted to any person obtaining a copy of this software and its
+fixtures (the "Demo") to use, run, inspect, and share the Demo for the purpose of
+evaluating Anomly's exact-compute technology, at no charge.
+
+The GPT-2 embedding fixtures are derived from the publicly released
+openai-community/gpt2 model weights and remain subject to their original terms.
+
+THE DEMO IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+DAMAGES, OR OTHER LIABILITY ARISING FROM, OUT OF, OR IN CONNECTION WITH THE DEMO
+OR THE USE OR OTHER DEALINGS IN THE DEMO.
+
+This license covers evaluation of the Demo only. It grants no rights to Anomly's
+b-posit / quire silicon IP, its hardware implementations, or any patents. For
+commercial or production use, contact ry@anomly.com.

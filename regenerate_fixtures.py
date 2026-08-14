@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2026 Anomly, Inc. All rights reserved. Author: Ry Bruscoe.
+# Copyright (c) 2026 Anomly, Inc. Author: Ry Bruscoe. Licensed under the Apache License, Version 2.0.
 """regenerate_fixtures.py — re-extract the real GPT-2 embedding fixtures (transparency).
 
 The demo ships fixtures/gpt2_wte.npy and fixtures/gpt2_wpe.npy so it runs with numpy alone. Those are

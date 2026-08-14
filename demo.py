@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2026 Anomly, Inc. All rights reserved. Author: Ry Bruscoe.
+# Copyright (c) 2026 Anomly, Inc. Author: Ry Bruscoe. Licensed under the Apache License, Version 2.0.
 """demo.py — the ~3-minute reproducibility demo for RL / verifier teams.
 
 Runs both demonstrations back-to-back on REAL GPT-2 weights and prints one consolidated verdict:
@@ -62,7 +62,7 @@ def main() -> int:
         print("        bit-for-bit. Anomly puts that reduction in silicon at GPU-parity speed.")
     else:
         print("RESULT: a property did not hold — investigate before using this externally.")
-    print(f"[{dt:.1f}s]   Contact: Ry Bruscoe · ry@anomly.com")
+    print(f"[{dt:.1f}s]   Contact: https://www.anomly.com/contact")
     print(bar)
     return 0 if ok else 1
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2026 Anomly, Inc. All rights reserved. Author: Ry Bruscoe.
+# Copyright (c) 2026 Anomly, Inc. Author: Ry Bruscoe. Licensed under the Apache License, Version 2.0.
 """verifier_determinism.py — an RLVR reward verifier that flips pass/fail from float order alone.
 
 THE CLAIM

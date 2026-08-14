@@ -1,4 +1,4 @@
-# Copyright (c) 2026 Anomly, Inc. All rights reserved. Author: Ry Bruscoe.
+# Copyright (c) 2026 Anomly, Inc. Author: Ry Bruscoe. Licensed under the Apache License, Version 2.0.
 """floatkernels.py — the float reductions real serving/training engines actually use.
 
 These are reference implementations of two REAL kernel families that produce the SAME math in

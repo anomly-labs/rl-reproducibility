@@ -1,4 +1,4 @@
-# Copyright (c) 2026 Anomly, Inc. All rights reserved. Author: Ry Bruscoe.
+# Copyright (c) 2026 Anomly, Inc. Author: Ry Bruscoe. Licensed under the Apache License, Version 2.0.
 """refquire.py — a reference ORDER-INDEPENDENT exact reduction.
 
 This is the property that matters: a dot product / reduction whose result does NOT depend on the order

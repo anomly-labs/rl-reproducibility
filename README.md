@@ -1,4 +1,4 @@
-<!-- Copyright (c) 2026 Anomly, Inc. All rights reserved. Author: Ry Bruscoe. -->
+<!-- Copyright (c) 2026 Anomly, Inc. Author: Ry Bruscoe. Licensed under the Apache License, Version 2.0. -->
 # RL / verifier reproducibility demo
 
 **Float accumulation *order* alone changes reward verdicts and sampler/trainer probabilities — on real
@@ -77,6 +77,9 @@ Blackhole), formally verified, and validated by John Gustafson — inventor of t
 If reproducible RL, stable verifiers, or auditable inference matter to you, we'd love to run a short
 pilot measuring the flip-rate on *your* models and taking it to zero.
 
-**Ry Bruscoe · Founder/CEO · ry@anomly.com**
+**Anomly, Inc. · https://www.anomly.com/contact**
 
-See `LICENSE`.
+## License
+
+Apache-2.0 (see `LICENSE` and `NOTICE`). This repo is a demonstration; the Apache-2.0 patent grant
+covers only the code here, which contains none of Anomly's b-posit / quire silicon IP or patents.

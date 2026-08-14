@@ -1,0 +1,16 @@
+RL / verifier reproducibility demo
+Copyright 2026 Anomly, Inc.
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This repository is a demonstration. It contains an order-INDEPENDENT reference
+reduction (correctly-rounded summation) used to illustrate a numerical property.
+It does NOT contain, and this license does NOT grant any rights to, Anomly's
+b-posit / quire silicon IP, its hardware implementations, or related patents.
+The Apache-2.0 patent grant applies only to the code in this repository, which
+does not practice those patents. For the production, fully-exact, GPU-parity-speed
+hardware datapath, contact https://www.anomly.com/contact.
+
+The embedding fixtures in fixtures/ are derived from the publicly released
+openai-community/gpt2 model weights and remain subject to their original terms;
+regenerate_fixtures.py reproduces them from that checkpoint.

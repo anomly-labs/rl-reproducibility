@@ -54,6 +54,9 @@ def run(wte_full: np.ndarray, wpe: np.ndarray, vocab: int = 1024, positions: int
         qb = rq.exact_logits(W[:, perm], h[perm])       # exact, permuted order
         q_total += vocab
         q_bitident += sum(1 for v in range(vocab) if _bits(qa[v]) == _bits(qb[v]))
+        # qa and qb are bit-identical by construction (math.fsum is order-independent, so the permuted
+        # logits equal the natural-order logits exactly) -> KL is EXACTLY 0.0, not merely small. This
+        # assertion is expected to pass, and does; it is not comparing the float paths.
         assert fk.kl(qa, qb) == 0.0, "exact KL must be exactly zero"
 
     return {"vocab": vocab, "positions": positions, "diff": diff, "n_logits": vocab * positions,

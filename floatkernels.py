@@ -12,6 +12,11 @@ engine, or between two tile/batch configurations of the same engine:
 All accumulate in bfloat16 (the aggressive-but-common case). Same weights, same inputs, same dtype —
 only the order differs, and that is enough to change the result. Compare with refquire.exact_* which
 does not change.
+
+NOTE for reviewers: these three kernels are SUPPOSED to disagree with each other. Their differing
+accumulation order is the independent variable of the whole demo, not an inconsistency to "fix" —
+making them match would delete the effect being measured. The point is that the float result depends
+on order at all; the exact reduction (refquire) does not.
 """
 from __future__ import annotations
 

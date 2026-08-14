@@ -52,7 +52,10 @@ def run(wte: np.ndarray, answers: int = 2048, orders: int = 8, band: float = 0.0
     flips_f_all = int(flips_f.sum())
     flips_f_near = int((flips_f & near).sum())
 
-    # exact: re-score under permuted term orders; the reduction is order-independent -> bit-identical
+    # exact: re-score under permuted term orders. This checks the exact PATH's own property (fsum is
+    # order-independent, so the permuted score equals s_ref bit-for-bit) — it is NOT compared against
+    # the float kernels' order; the float-vs-exact contrast is the flip counts above. Bit-identity here
+    # is expected by construction, and is what lets the exact verifier never flip.
     q_bitident = True
     for seed in range(orders):
         perm = np.random.default_rng(seed).permutation(A.shape[1])

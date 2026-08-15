@@ -29,6 +29,7 @@ import numpy as np
 import tim
 import verifier_determinism as vd
 import grpo
+import worst_case_order as wco
 
 HERE = Path(__file__).resolve().parent
 
@@ -57,9 +58,12 @@ def main() -> int:
     print("\n[3] RL LOOP FORK — does the same training run diverge just from sampler kernel shape?")
     ok3 = grpo.report(grpo.run(wte, wpe))
 
+    print("\n[4] WORST-CASE ORDER — how bad can order alone get? (order found by evolutionary search)")
+    ok4 = wco.report(wco.run(wte))
+
     dt = time.perf_counter() - t0
     print("\n" + bar)
-    ok = ok1 and ok2 and ok3
+    ok = ok1 and ok2 and ok3 and ok4
     if ok:
         print("RESULT: on real GPT-2 data, float accumulation ORDER alone changes reward verdicts,")
         print("        sampler/trainer probabilities, AND whole training runs. An order-independent")

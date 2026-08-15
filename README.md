@@ -66,6 +66,11 @@ Runs in a few seconds on real GPT-2 embeddings (shipped as fixtures — no downl
 [3] RL LOOP FORK — does the same training run diverge just from sampler kernel shape?
   FLOAT  -> action streams identical across chunk: False   final weight max |delta|: 9.33e-03
   EXACT  -> action streams identical across chunk: True   final weights bit-equal: True
+
+[4] WORST-CASE ORDER — how bad can order alone get? (order found by evolutionary search)
+  realistic bf16 chunk order  -> flips 12/170 (7%)
+  EVOLVED worst-case order    -> flips 92/170 (54%)   <- order alone can flip a MAJORITY
+  exact quire (any order)     -> flips 0/170 (0%)   <- invariant
 ```
 *(Your numbers will match — the inputs are fixed and disclosed. Whole suite runs in ~3s.)*
 
@@ -82,6 +87,12 @@ Runs in a few seconds on real GPT-2 embeddings (shipped as fixtures — no downl
   you can't reproduce the run. Under the order-independent reduction they're **bit-identical** end to end.
   (Honest scope: at this scale it's a training-*reproducibility* failure; the behavioral pass/fail
   consequence is demo [1].)
+- **Worst-case order** (`worst_case_order.py`) — realistic kernels flip ~7-18%, but *how bad can order
+  alone get?* An evolutionary search (OpenEvolve driving a code LLM) discovered a principled worst case —
+  sort by magnitude, then interleave the largest positive and negative terms to force catastrophic
+  cancellation in the bf16 sum — flipping **~54%** of the boundary verdicts. The exact reduction flips
+  **0** no matter the order. (Honest scope: a worst-case *demonstration* of order-dependence, not a claim
+  a production kernel uses this exact order; real kernels land between the ~7% and ~54% rows.)
 
 ## What's real, and what's honest scope
 
@@ -108,6 +119,7 @@ exactness of transcendentals.
 | `verifier_determinism.py` | reward-verifier flip demo |
 | `tim.py` | training–inference mismatch demo |
 | `grpo.py` | RL-loop-fork demo (training run diverges under float) |
+| `worst_case_order.py` | evolutionary-search worst-case accumulation order (~54% flips vs 0%) |
 | `refquire.py` | order-independent exact reference reduction (+ big-int gold check) |
 | `floatkernels.py` | the order-dependent bf16 serving/training kernels |
 | `regenerate_fixtures.py` | rebuild the real GPT-2 fixtures from the public checkpoint |

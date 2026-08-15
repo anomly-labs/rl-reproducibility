@@ -19,6 +19,7 @@ import numpy as np
 
 import floatkernels as fk
 import refquire as rq
+import tim
 
 
 def worst_case_order(products) -> np.ndarray:
@@ -84,6 +85,57 @@ def report(r: dict) -> bool:
     return ok
 
 
+def _bf16_accumulate_ordered(Po) -> np.ndarray:
+    """Po: (V, K) products already placed per-row in the desired accumulation order. Sequential bf16
+    accumulation along axis 1, vectorised across rows (K vector ops). Returns (V,) float64."""
+    acc = np.zeros(Po.shape[0], dtype=np.float32)
+    Pb = fk.bf16(Po)
+    for k in range(Pb.shape[1]):
+        acc = fk.bf16(acc + Pb[:, k])
+    return acc.astype(np.float64)
+
+
+def run_tim(wte, wpe, vocab: int = 512, positions: int = 4) -> dict:
+    """Worst-case order applied to the TIM sampler (demo [2]): how far can accumulation order alone push
+    the sampler's token distribution from the EXACT ground truth? Mean KL(sampler || exact) over real
+    GPT-2 logits, for a realistic chunk order vs the evolved worst-case order. The exact reduction is
+    order-independent, so a permuted exact accumulation stays bit-identical -> KL == 0 (the invariant)."""
+    wte = np.asarray(wte, np.float64)
+    wpe = np.asarray(wpe, np.float64)
+    W = wte[:vocab]
+    worst_kls, real_kls, exact_kls = [], [], []
+    for pi in range(positions):
+        h = wte[tim.TOKEN_IDS[pi]] + wpe[pi]                  # real layer-0 input
+        exact = rq.exact_logits(W, h)                         # order-independent ground truth
+        real = fk.float_chunked_tree(W, h)                    # a realistic sampler order
+        Pv = W * h                                            # (V, K) per-logit products
+        Po = np.empty_like(Pv)
+        for v in range(vocab):
+            Po[v] = Pv[v][worst_case_order(Pv[v])]            # evolved worst-case sampler order, per logit
+        worst = _bf16_accumulate_ordered(Po)
+        real_kls.append(fk.kl(real, exact))                   # realistic sampler vs exact truth
+        worst_kls.append(fk.kl(worst, exact))                 # worst-case sampler vs exact truth
+        exact_perm = rq.exact_logits(W[:, ::-1], h[::-1])     # exact in a different order -> identical
+        exact_kls.append(fk.kl(exact_perm, exact))
+    return {"vocab": vocab, "positions": positions,
+            "worst_kl": float(np.mean(worst_kls)), "real_kl": float(np.mean(real_kls)),
+            "exact_kl": float(np.max(exact_kls))}
+
+
+def report_tim(r: dict) -> bool:
+    ratio = r["worst_kl"] / max(r["real_kl"], 1e-12)
+    print(f"  TIM sampler divergence from EXACT ground truth: {r['positions']} positions, real GPT-2 logits")
+    print(f"  realistic bf16 chunk order  -> mean KL {r['real_kl']:.1e}   (a normal order stays near exact)")
+    print(f"  EVOLVED worst-case order    -> mean KL {r['worst_kl']:.1e}   <- ~{ratio:.0f}x further from ground truth, from order alone")
+    print(f"  exact quire (any order)     -> mean KL {r['exact_kl']:.1e}   <- invariant (bit-identical)")
+    ok = r["worst_kl"] > r["real_kl"] and r["exact_kl"] == 0.0
+    print(f"  => {'accumulation ORDER alone drives the sampler far from the exact distribution; the exact reduction never moves' if ok else 'CHECK'}")
+    return ok
+
+
 if __name__ == "__main__":
     _wte = np.load("fixtures/gpt2_wte.npy")
+    _wpe = np.load("fixtures/gpt2_wpe.npy")
     report(run(_wte))
+    print()
+    report_tim(run_tim(_wte, _wpe))

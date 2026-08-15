@@ -59,7 +59,15 @@ def main() -> int:
     ok3 = grpo.report(grpo.run(wte, wpe))
 
     print("\n[4] WORST-CASE ORDER — how bad can order alone get? (order found by evolutionary search)")
-    ok4 = wco.report(wco.run(wte))
+    ok4a = wco.report(wco.run(wte))
+    print("  --")
+    ok4b = wco.report_tim(wco.run_tim(wte, wpe))
+    print("  --")
+    print("  GRPO loop: the same search finds its fork already near-saturated under any float order —")
+    print("  the worst-case order barely exceeds a realistic chunk order (the fork is driven by WHICH")
+    print("  actions get sampled, not fine accumulation order). It still forks under float and is")
+    print("  bit-identical under exact regardless — see [3].")
+    ok4 = ok4a and ok4b
 
     dt = time.perf_counter() - t0
     print("\n" + bar)

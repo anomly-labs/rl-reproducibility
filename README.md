@@ -68,9 +68,10 @@ Runs in a few seconds on real GPT-2 embeddings (shipped as fixtures — no downl
   EXACT  -> action streams identical across chunk: True   final weights bit-equal: True
 
 [4] WORST-CASE ORDER — how bad can order alone get? (order found by evolutionary search)
-  realistic bf16 chunk order  -> flips 12/170 (7%)
-  EVOLVED worst-case order    -> flips 92/170 (54%)   <- order alone can flip a MAJORITY
-  exact quire (any order)     -> flips 0/170 (0%)   <- invariant
+  verifier flip-rate:  realistic 12/170 (7%)  -> worst-case 92/170 (54%)  -> exact 0/170 (0%)
+  TIM sampler vs exact: realistic KL 2.8e-04  -> worst-case KL 7.8e-02     -> exact 0.0
+  (GRPO: the same search finds its training fork already near-saturated under any float order — it forks
+   under float and is bit-identical under exact regardless of order; see [3].)
 ```
 *(Your numbers will match — the inputs are fixed and disclosed. Whole suite runs in ~3s.)*
 
@@ -90,9 +91,14 @@ Runs in a few seconds on real GPT-2 embeddings (shipped as fixtures — no downl
 - **Worst-case order** (`worst_case_order.py`) — realistic kernels flip ~7-18%, but *how bad can order
   alone get?* An evolutionary search (OpenEvolve driving a code LLM) discovered a principled worst case —
   sort by magnitude, then interleave the largest positive and negative terms to force catastrophic
-  cancellation in the bf16 sum — flipping **~54%** of the boundary verdicts. The exact reduction flips
-  **0** no matter the order. (Honest scope: a worst-case *demonstration* of order-dependence, not a claim
-  a production kernel uses this exact order; real kernels land between the ~7% and ~54% rows.)
+  cancellation in the bf16 sum. On the **verifier** it flips **~54%** of the boundary verdicts (vs ~7%
+  realistic); on the **TIM sampler** it pushes the token distribution **~276× further** from the exact
+  ground truth than a normal order does (KL 7.8e-2 vs 2.8e-4). The same search independently rediscovered
+  the *same* ordering principle for each demo. The exact reduction is **0** in every case, no matter the
+  order. (Honest scope: a worst-case *demonstration* of order-dependence, not a claim a production kernel
+  uses this exact order; real kernels land between the realistic and worst-case rows. On the **GRPO**
+  training loop the same search found the fork already near-saturated under any float order — it forks
+  under float and is bit-identical under exact regardless — so there's no distinct worst-case row for it.)
 
 ## What's real, and what's honest scope
 

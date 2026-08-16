@@ -30,6 +30,8 @@ import tim
 import verifier_determinism as vd
 import grpo
 import worst_case_order as wco
+import worst_case_cancellation as wcc
+import worst_case_variance as wcv
 
 HERE = Path(__file__).resolve().parent
 
@@ -69,13 +71,21 @@ def main() -> int:
     print("  bit-identical under exact regardless — see [3].")
     ok4 = ok4a and ok4b
 
+    print("\n[5] CATASTROPHIC CANCELLATION — is float32 not just non-reproducible, but WRONG?")
+    ok5 = wcc.report(wcc.run())
+
+    print("\n[6] NEGATIVE VARIANCE — the naive one-pass variance in float32")
+    ok6 = wcv.report(wcv.run())
+
     dt = time.perf_counter() - t0
     print("\n" + bar)
-    ok = ok1 and ok2 and ok3 and ok4
+    ok = ok1 and ok2 and ok3 and ok4 and ok5 and ok6
     if ok:
         print("RESULT: on real GPT-2 data, float accumulation ORDER alone changes reward verdicts,")
-        print("        sampler/trainer probabilities, AND whole training runs. An order-independent")
-        print("        reduction removes all three, bit-for-bit. Anomly puts it in silicon at speed.")
+        print("        sampler/trainer probabilities, AND whole training runs [1-4]; and on constructed")
+        print("        worst cases float32 is flatly WRONG — a dot product off by ~1e9, a NEGATIVE variance")
+        print("        [5-6]. An order-independent, exact reduction removes all of it, bit-for-bit. Anomly")
+        print("        puts it in silicon at speed.")
     else:
         print("RESULT: a property did not hold — investigate before using this externally.")
     print(f"[{dt:.1f}s]   Contact: https://www.anomly.com/contact")

@@ -72,6 +72,14 @@ Runs in a few seconds on real GPT-2 embeddings (shipped as fixtures — no downl
   TIM sampler vs exact: realistic KL 2.8e-04  -> worst-case KL 7.8e-02     -> exact 0.0
   (GRPO: the same search finds its training fork already near-saturated under any float order — it forks
    under float and is bit-identical under exact regardless of order; see [3].)
+
+[5] CATASTROPHIC CANCELLATION — is float32 not just non-reproducible, but WRONG?
+  a dot product whose TRUE value is 1  -> float32 returns ~1e8-1e9 (off by orders of magnitude)
+  exact reduction (any order)          -> the true value, always   (verified vs math.fsum)
+
+[6] NEGATIVE VARIANCE — the naive one-pass variance E[x^2]-E[x]^2 in float32
+  large-mean / small-spread data  -> float32 variance goes NEGATIVE (~-1.4e9; std = NaN)
+  exact reduction                 -> the correct, non-negative variance, always
 ```
 *(Your numbers will match — the inputs are fixed and disclosed. Whole suite runs in ~3s.)*
 
@@ -99,6 +107,18 @@ Runs in a few seconds on real GPT-2 embeddings (shipped as fixtures — no downl
   uses this exact order; real kernels land between the realistic and worst-case rows. On the **GRPO**
   training loop the same search found the fork already near-saturated under any float order — it forks
   under float and is bit-identical under exact regardless — so there's no distinct worst-case row for it.)
+- **Catastrophic cancellation** (`worst_case_cancellation.py`) — the other face of the problem: not just
+  that order changes the answer, but that float32 can be flatly **WRONG**. A dot product of ordinary
+  float-representable numbers whose true value is **1** (thousands of large ± terms plus a residual of 1)
+  returns **~1e8–1e9** in float32 — off by orders of magnitude — while the order-independent exact
+  reduction returns exactly 1 (verified vs `math.fsum`). (Honest scope: a constructed worst case, to bound
+  how wrong float gets on ordinary inputs; it's a *correctness* statement, not only a reproducibility one.)
+- **Negative variance** (`worst_case_variance.py`) — the textbook one-pass variance `E[x²] − E[x]²`, used
+  in countless naive stats/ML routines, on large-mean / small-spread data returns a **NEGATIVE** float32
+  variance (~−1.4e9 — mathematically impossible; `std = √negative = NaN`, whitening/Cholesky blows up)
+  where the true variance is ~0. The exact reduction computes the identical formula correctly and stays
+  non-negative. (Honest scope: constructed worst-case data; inputs are snapped to float32 so the only
+  error measured is the accumulation.)
 
 ## What's real, and what's honest scope
 
@@ -114,18 +134,22 @@ Runs in a few seconds on real GPT-2 embeddings (shipped as fixtures — no downl
   U200 engine, with a reward verifier's flip-rate driven to **zero**. This repo proves the class of fix;
   the fast, fully-exact hardware datapath is Anomly's.
 
-We certify **reproducibility** — the same defined computation, bit-identical anywhere — not mathematical
-exactness of transcendentals.
+We certify **reproducibility** — the same defined computation, bit-identical anywhere. For the reductions
+here (dot products, variance moments), the exact path is also **correct** — it returns the correctly-rounded
+true value, verified against arbitrary precision (demos [5]-[6]). We do not claim exactness of transcendentals
+(`sin`, `exp`, …); the claim is exact, order-independent *accumulation*.
 
 ## Files
 
 | file | what |
 |---|---|
-| `demo.py` | runs all three demonstrations, one consolidated verdict |
+| `demo.py` | runs all six demonstrations, one consolidated verdict |
 | `verifier_determinism.py` | reward-verifier flip demo |
 | `tim.py` | training–inference mismatch demo |
 | `grpo.py` | RL-loop-fork demo (training run diverges under float) |
 | `worst_case_order.py` | evolutionary-search worst-case accumulation order (~54% flips vs 0%) |
+| `worst_case_cancellation.py` | catastrophic cancellation — float32 dot ~1e9 when the truth is 1 |
+| `worst_case_variance.py` | naive one-pass variance goes NEGATIVE in float32 |
 | `refquire.py` | order-independent exact reference reduction (+ big-int gold check) |
 | `floatkernels.py` | the order-dependent bf16 serving/training kernels |
 | `regenerate_fixtures.py` | rebuild the real GPT-2 fixtures from the public checkpoint |
